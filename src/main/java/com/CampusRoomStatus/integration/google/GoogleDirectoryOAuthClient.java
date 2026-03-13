@@ -22,9 +22,9 @@ public class GoogleDirectoryOAuthClient {
         this.restClient = RestClient.create();
     }
 
-    public Map listBuildings() {
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> listBuildings() {
         String token = tokenService.getAccessToken();
-
         try {
             return restClient.get()
                     .uri(BASE_URL + "/customer/" + properties.getCustomer() + "/resources/buildings")
@@ -36,7 +36,8 @@ public class GoogleDirectoryOAuthClient {
         }
     }
 
-    public Map listRooms() {
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> listRooms() {
         String token = tokenService.getAccessToken();
 
         try {

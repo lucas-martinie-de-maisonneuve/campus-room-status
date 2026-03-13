@@ -12,22 +12,30 @@ import java.util.Map;
 @RestController
 public class AuthController {
 
-    @GetMapping("/me")
+    @GetMapping("/api/v1/get-token")
     public Map<String, Object> me(
-        @AuthenticationPrincipal OidcUser user,
-        @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient client
-    ) {
+            @AuthenticationPrincipal OidcUser user,
+            @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient client) {
         String refreshToken = client.getRefreshToken() != null
                 ? client.getRefreshToken().getTokenValue()
                 : "NON DISPONIBLE";
 
+        Map<String, Object> response = Map.of(
+                "email", user.getEmail(),
+                "refreshToken", refreshToken);
+
         System.out.println("=== COPIEZ CE REFRESH TOKEN DANS VOTRE .env et relancer le projet ===");
         System.out.println("GOOGLE_REFRESH_TOKEN=" + refreshToken);
-        System.out.println("===============================================");
+        System.out.println("=====================================================================");
 
-        return Map.of(
-            "email", user.getEmail(),
-            "refreshToken", refreshToken
-        );
+        new Thread(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {
+            }
+            System.exit(0);
+        }).start();
+
+        return response;
     }
 }

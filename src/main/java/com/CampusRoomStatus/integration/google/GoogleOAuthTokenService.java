@@ -27,7 +27,7 @@ public class GoogleOAuthTokenService {
     public String getAccessToken() {
         if (!hasRefreshToken()) {
             throw new GoogleIntegrationException(
-                    "Aucun refresh token configuré. Connectez-vous sur http://localhost:8080/me", null);
+                    "Aucun refresh token configuré. Connectez-vous sur http://localhost:8080//api/v1/get-token", null);
         }
 
         var body = new LinkedMultiValueMap<String, String>();
@@ -37,7 +37,8 @@ public class GoogleOAuthTokenService {
         body.add("grant_type", "refresh_token");
 
         try {
-            Map response = restClient.post()
+            @SuppressWarnings("unchecked")
+            Map<String,Object> response = restClient.post()
                     .uri("https://oauth2.googleapis.com/token")
                     .body(body)
                     .retrieve()
