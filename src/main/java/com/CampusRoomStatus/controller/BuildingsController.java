@@ -4,6 +4,8 @@ import com.CampusRoomStatus.dto.BuildingDTO;
 import com.CampusRoomStatus.service.BuildingsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -17,6 +19,7 @@ import java.util.Map;
  * Les données des bâtiments sont synchronisées depuis l'API Google Directory
  * via le service BuildingsService.
  */
+@Tag(name = "Buildings", description = "Endpoints pour gérer les bâtiments du campus")
 @RestController
 @RequestMapping("/buildings")
 public class BuildingsController {
@@ -30,9 +33,10 @@ public class BuildingsController {
     /**
      * Endpoint pour récupérer la liste de tous les bâtiments.
      * La réponse inclut un timestamp et une liste de BuildingDTO.
-     * 
+     *
      * @return
      */
+    @Operation(summary = "Récupérer la liste de tous les bâtiments")
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAll() {
         List<BuildingDTO> buildings = buildingsService.getAll();
@@ -51,6 +55,7 @@ public class BuildingsController {
      * @param buildingId
      * @return
      */
+    @Operation(summary = "Récupérer les détails d'un bâtiment par son buildingId")
     @GetMapping("/{buildingId}")
     public ResponseEntity<BuildingDTO> getBuildingById(@PathVariable String buildingId) {
         return buildingsService.getByGoogleId(buildingId)

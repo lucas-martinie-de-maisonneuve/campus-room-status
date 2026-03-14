@@ -1,16 +1,17 @@
 package com.CampusRoomStatus.controller;
 
 import com.CampusRoomStatus.integration.google.GoogleOAuthTokenService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
+import java.io.IOException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.Map;
-
+@Hidden
 @RestController
 @RequestMapping
 public class AuthController {

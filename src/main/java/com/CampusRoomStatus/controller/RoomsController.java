@@ -2,6 +2,7 @@ package com.CampusRoomStatus.controller;
 
 import com.CampusRoomStatus.dto.RoomDTO;
 import com.CampusRoomStatus.service.RoomsService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class RoomsController {
         this.roomsService = roomsService;
     }
 
+    @Operation(summary = "Récupérer la liste de toutes les salles")
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAll() {
         List<RoomDTO> rooms = roomsService.getAll();
@@ -32,6 +34,7 @@ public class RoomsController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Récupérer la liste des salles d'un bâtiment par son buildingGoogleId")
     @GetMapping("/building/{buildingGoogleId}")
     public ResponseEntity<Map<String, Object>> getByBuilding(@PathVariable String buildingGoogleId) {
         List<RoomDTO> rooms = roomsService.getByBuilding(buildingGoogleId);
@@ -44,6 +47,7 @@ public class RoomsController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Récupérer les détails d'une salle par son code")
     @GetMapping("/{code}")
     public ResponseEntity<Map<String, Object>> getByCode(@PathVariable String code) {
         return roomsService.getByCode(code)
