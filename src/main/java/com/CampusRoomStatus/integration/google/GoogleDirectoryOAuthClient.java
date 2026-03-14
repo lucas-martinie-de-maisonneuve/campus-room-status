@@ -22,6 +22,12 @@ public class GoogleDirectoryOAuthClient {
         this.restClient = RestClient.create();
     }
 
+    /**
+     * Récupère la liste des bâtiments depuis l'API Google Directory en utilisant le
+     * token d'accès OAuth.
+     * Le token d'accès est obtenu via le GoogleOAuthTokenService, qui gère le
+     * rafraîchissement du token si nécessaire.
+     */
     @SuppressWarnings("unchecked")
     public Map<String, Object> listBuildings() {
         String token = tokenService.getAccessToken();
@@ -36,6 +42,12 @@ public class GoogleDirectoryOAuthClient {
         }
     }
 
+    /**
+     * Récupère la liste des salles depuis l'API Google Directory en utilisant le
+     * token d'accès OAuth.
+     * Le token d'accès est obtenu via le GoogleOAuthTokenService, qui gère le
+     * rafraîchissement du token si nécessaire.
+     */
     @SuppressWarnings("unchecked")
     public Map<String, Object> listRooms() {
         String token = tokenService.getAccessToken();

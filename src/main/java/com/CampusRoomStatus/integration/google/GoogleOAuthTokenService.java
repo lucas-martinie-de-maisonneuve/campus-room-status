@@ -19,15 +19,28 @@ public class GoogleOAuthTokenService {
         this.restClient = RestClient.create();
     }
 
+    /**
+     * Vérifie si un refresh token est configuré dans les propriétés de
+     * l'application.
+     * Un refresh token est nécessaire pour obtenir un token d'accès valide pour les
+     * appels à l'API Google Directory.
+     * Retourne true si un refresh token est configuré, false sinon.
+     */
     public boolean hasRefreshToken() {
-        String token = properties.getOauthRefreshToken();
-        return token != null && !token.isBlank();
+        return properties.getOauthRefreshToken() != null && !properties.getOauthRefreshToken().isBlank();
     }
 
+    /**
+     * Obtient un token d'accès valide en utilisant le refresh token configuré. Si
+     * aucun refresh token n'est configuré, lance une exception.
+     * Le token d'accès est nécessaire pour authentifier les requêtes vers l'API
+     * Google Directory. Cette méthode gère également le rafraîchissement du token
+     * si nécessaire.
+     */
     public String getAccessToken() {
         if (!hasRefreshToken()) {
             throw new GoogleIntegrationException(
-                    "Aucun refresh token configuré. Connectez-vous sur http://localhost:8080//api/v1/get-token", null);
+                    "Aucun refresh token configuré. Connectez-vous sur http://localhost:8080/api/v1/get-token", null);
         }
 
         var body = new LinkedMultiValueMap<String, String>();
@@ -38,7 +51,7 @@ public class GoogleOAuthTokenService {
 
         try {
             @SuppressWarnings("unchecked")
-            Map<String,Object> response = restClient.post()
+            Map<String, Object> response = restClient.post()
                     .uri("https://oauth2.googleapis.com/token")
                     .body(body)
                     .retrieve()

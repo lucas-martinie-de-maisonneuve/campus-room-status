@@ -1,32 +1,63 @@
 package com.CampusRoomStatus.controller;
 
+import com.CampusRoomStatus.integration.google.GoogleOAuthTokenService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
+@RequestMapping
 public class AuthController {
 
-    @GetMapping("/api/v1/get-token")
-    public Map<String, Object> me(
+    private final GoogleOAuthTokenService tokenService;
+
+    public AuthController(GoogleOAuthTokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    /**
+     * Endpoint pour initier le processus d'authentification OAuth avec Google et
+     * obtenir un refresh token.
+     * Si un refresh token est déjà configuré, retourne une erreur 403 avec un
+     * message explicatif.
+     */
+    @GetMapping("/get-token")
+    public void getToken(HttpServletResponse response) throws IOException {
+        if (tokenService.hasRefreshToken()) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write(
+                    "Refresh token deja configure. Si vous voulez en configurer un nouveau, supprimez d'abord la variable GOOGLE_REFRESH_TOKEN de votre .env");
+            response.getWriter().flush();
+            return;
+        }
+        response.sendRedirect("/api/v1/oauth2/authorization/google");
+    }
+
+    /**
+     * Endpoint de callback pour récupérer le refresh token après une
+     * authentification réussie avec Google.
+     * Affiche le refresh token dans la console et le retourne dans la réponse.
+     * Le serveur s'arrête automatiquement après 500ms pour éviter les problèmes de
+     * sécurité liés à l'exposition du token.
+     */
+    @GetMapping("/callback")
+    public Map<String, Object> callback(
             @AuthenticationPrincipal OidcUser user,
             @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient client) {
+
         String refreshToken = client.getRefreshToken() != null
                 ? client.getRefreshToken().getTokenValue()
                 : "NON DISPONIBLE";
 
-        Map<String, Object> response = Map.of(
-                "email", user.getEmail(),
-                "refreshToken", refreshToken);
-
-        System.out.println("=== COPIEZ CE REFRESH TOKEN DANS VOTRE .env et relancer le projet ===");
-        System.out.println("GOOGLE_REFRESH_TOKEN=" + refreshToken);
-        System.out.println("=====================================================================");
+        System.out.println("\n\n\n" +
+                "======= COPIEZ CE REFRESH TOKEN DANS VOTRE .env =======\n\n" +
+                "GOOGLE_REFRESH_TOKEN=" + refreshToken + "\n\n");
 
         new Thread(() -> {
             try {
@@ -36,6 +67,8 @@ public class AuthController {
             System.exit(0);
         }).start();
 
-        return response;
+        return Map.of(
+                "email", user.getEmail(),
+                "refreshToken", refreshToken);
     }
 }
