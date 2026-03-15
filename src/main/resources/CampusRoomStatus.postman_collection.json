@@ -1,0 +1,154 @@
+{
+  "info": {
+    "name": "CampusRoomStatus",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api/v1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Buildings",
+      "item": [
+        {
+          "name": "GET all buildings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/buildings",
+              "host": ["{{base_url}}"],
+              "path": ["buildings"]
+            }
+          }
+        },
+        {
+          "name": "GET building by id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/buildings/1",
+              "host": ["{{base_url}}"],
+              "path": ["buildings", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "GET all rooms",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"]
+            }
+          }
+        },
+        {
+          "name": "GET room by code",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms/Vert-01-RDC-La-Plateforme-Hangar",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "Vert-01-RDC-La-Plateforme-Hangar"]
+            }
+          }
+        },
+        {
+          "name": "GET rooms by building - Hangar",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms/buildings/La-Plateforme-Hangar",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "buildings", "La-Plateforme-Hangar"]
+            }
+          }
+        },
+        {
+          "name": "GET rooms by building - Martigues",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms/buildings/La-Plateforme-Martigues",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "buildings", "La-Plateforme-Martigues"]
+            }
+          }
+        },
+        {
+          "name": "GET rooms by building - Online",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms/buildings/La-Plateforme-Online",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "buildings", "La-Plateforme-Online"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "GET schedule this week",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms/Vert-01-RDC-La-Plateforme-Hangar/schedule",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "Vert-01-RDC-La-Plateforme-Hangar", "schedule"]
+            }
+          }
+        },
+        {
+          "name": "GET schedule by period",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms/Vert-01-RDC-La-Plateforme-Hangar/schedule?start=2026-03-09&end=2026-03-15",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "Vert-01-RDC-La-Plateforme-Hangar", "schedule"],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2026-03-09"
+                },
+                {
+                  "key": "end",
+                  "value": "2026-03-15"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "GET token (refresh token vide uniquement)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/get-token",
+              "host": ["{{base_url}}"],
+              "path": ["get-token"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
