@@ -20,16 +20,19 @@ public class EventsService {
     private final EventsRepository eventsRepository;
     private final RoomsRepository roomsRepository;
     private final GoogleCalendarOAuthClient googleCalendarClient;
+    private final AppMetadataService appMetadataService;
     private final EventMapper eventMapper;
 
     public EventsService(
             EventsRepository eventsRepository,
             RoomsRepository roomsRepository,
             GoogleCalendarOAuthClient googleCalendarClient,
+            AppMetadataService appMetadataService,
             EventMapper eventMapper) {
         this.eventsRepository = eventsRepository;
         this.roomsRepository = roomsRepository;
         this.googleCalendarClient = googleCalendarClient;
+        this.appMetadataService = appMetadataService;
         this.eventMapper = eventMapper;
     }
 
@@ -37,11 +40,62 @@ public class EventsService {
         Room room = roomsRepository.findByCode(roomCode)
                 .orElseThrow(() -> new RuntimeException("Salle introuvable : " + roomCode));
 
+        String syncKey = "sync_" + roomCode + "_" + start.toLocalDate() + "_" + end.toLocalDate();
+
+        if (!appMetadataService.isSynced(syncKey)) {
+            syncForPeriod(room, start, end);
+            appMetadataService.markSynced(syncKey);
+        }
+
         return eventsRepository
                 .findByRoomIdAndStartTimeBetweenOrderByStartTimeAsc(room.getId(), start, end)
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void syncForPeriod(Room room, ZonedDateTime start, ZonedDateTime end) {
+        if (room.getResourceEmail() == null)
+            return;
+
+        Map<String, Object> response;
+        try {
+            response = googleCalendarClient.listEvents(room.getResourceEmail(), start, end);
+        } catch (Exception e) {
+            System.out.println("Impossible de syncer : " + room.getCode() + " — " + e.getMessage());
+            return;
+        }
+
+        if (response == null || !response.containsKey("items"))
+            return;
+
+        List<Map<String, Object>> googleEvents = (List<Map<String, Object>>) response.get("items");
+
+        for (Map<String, Object> googleEvent : googleEvents) {
+            String googleId = (String) googleEvent.get("id");
+            Event event = eventsRepository.findByEventGoogleId(googleId).orElse(new Event());
+
+            event.setEventGoogleId(googleId);
+            event.setRoom(room);
+            event.setTitle((String) googleEvent.get("summary"));
+            event.setStatus((String) googleEvent.get("status"));
+            event.setLastSyncedAt(ZonedDateTime.now());
+
+            Map<String, Object> creator = (Map<String, Object>) googleEvent.get("creator");
+            if (creator != null)
+                event.setOrganizerEmail((String) creator.get("email"));
+
+            Map<String, Object> startMap = (Map<String, Object>) googleEvent.get("start");
+            Map<String, Object> endMap = (Map<String, Object>) googleEvent.get("end");
+
+            if (startMap != null && startMap.get("dateTime") != null)
+                event.setStartTime(ZonedDateTime.parse((String) startMap.get("dateTime")));
+            if (endMap != null && endMap.get("dateTime") != null)
+                event.setEndTime(ZonedDateTime.parse((String) endMap.get("dateTime")));
+
+            eventsRepository.save(event);
+        }
     }
 
     public Optional<EventDTO> getCurrentEvent(Room room) {

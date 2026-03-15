@@ -1,7 +1,5 @@
 package com.CampusRoomStatus.config;
 
-import com.CampusRoomStatus.integration.google.GoogleOAuthTokenService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,13 +14,10 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 public class SecurityConfig {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
-    private final GoogleOAuthTokenService tokenService;
 
     public SecurityConfig(
-            @Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository,
-            GoogleOAuthTokenService tokenService) {
+            @Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository) {
         this.clientRegistrationRepository = clientRegistrationRepository;
-        this.tokenService = tokenService;
     }
 
     @Bean

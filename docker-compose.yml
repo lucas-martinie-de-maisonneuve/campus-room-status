@@ -1,0 +1,49 @@
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: crs-postgres
+    environment:
+      POSTGRES_DB: ${PG_DB_NAME}
+      POSTGRES_USER: ${PG_DB_USER}
+      POSTGRES_PASSWORD: ${PG_DB_PASS}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: crs-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: crs-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

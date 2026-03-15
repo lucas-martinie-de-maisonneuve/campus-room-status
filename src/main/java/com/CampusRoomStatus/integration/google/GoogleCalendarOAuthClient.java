@@ -25,27 +25,18 @@ public class GoogleCalendarOAuthClient {
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> listEventsThisWeek(String calendarId) {
+    public Map<String, Object> listEvents(String calendarId, ZonedDateTime start, ZonedDateTime end) {
         String token = tokenService.getAccessToken();
-
-        ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .toLocalDate().atStartOfDay(now.getZone());
-        ZonedDateTime endOfWeek = startOfWeek.plusDays(7);
-
-        String timeMin = startOfWeek.format(DateTimeFormatter.ISO_INSTANT);
-        String timeMax = endOfWeek.format(DateTimeFormatter.ISO_INSTANT);
 
         String uri = UriComponentsBuilder
                 .fromUriString(BASE_URL + "/calendars/{calendarId}/events")
-                .queryParam("timeMin", timeMin)
-                .queryParam("timeMax", timeMax)
+                .queryParam("timeMin", start.format(DateTimeFormatter.ISO_INSTANT))
+                .queryParam("timeMax", end.format(DateTimeFormatter.ISO_INSTANT))
                 .queryParam("singleEvents", "true")
                 .queryParam("orderBy", "startTime")
                 .buildAndExpand(calendarId)
                 .encode()
                 .toUriString();
-        System.out.println("URI : " + uri);
 
         try {
             return restClient.get()
@@ -54,7 +45,14 @@ public class GoogleCalendarOAuthClient {
                     .retrieve()
                     .body(Map.class);
         } catch (Exception e) {
-            throw new GoogleIntegrationException("Impossible de récupérer les events du calendrier : " + calendarId, e);
+            throw new GoogleIntegrationException("Impossible de récupérer les events : " + calendarId, e);
         }
+    }
+
+    public Map<String, Object> listEventsThisWeek(String calendarId) {
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .toLocalDate().atStartOfDay(now.getZone());
+        return listEvents(calendarId, startOfWeek, startOfWeek.plusDays(7));
     }
 }
