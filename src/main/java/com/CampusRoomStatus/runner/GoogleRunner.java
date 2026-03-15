@@ -1,8 +1,10 @@
 package com.CampusRoomStatus.runner;
 
-import com.CampusRoomStatus.integration.google.GoogleOAuthTokenService;
 import com.CampusRoomStatus.service.BuildingsService;
 import com.CampusRoomStatus.service.RoomsService;
+import com.CampusRoomStatus.service.EventsService;
+
+import com.CampusRoomStatus.integration.google.GoogleOAuthTokenService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +14,18 @@ public class GoogleRunner implements CommandLineRunner {
     private final GoogleOAuthTokenService tokenService;
     private final BuildingsService buildingsService;
     private final RoomsService roomsService;
+    private final EventsService eventsService;
+
 
     public GoogleRunner(
             GoogleOAuthTokenService tokenService,
             BuildingsService buildingsService,
-            RoomsService roomsService) {
+            RoomsService roomsService,
+            EventsService eventsService) {
         this.tokenService = tokenService;
         this.buildingsService = buildingsService;
         this.roomsService = roomsService;
+        this.eventsService = eventsService;
     }
 
     @Override
@@ -38,5 +44,7 @@ public class GoogleRunner implements CommandLineRunner {
         System.out.println("Buildings synchronisés.");
         roomsService.syncFromGoogle();
         System.out.println("Rooms synchronisées.");
+        eventsService.syncAllRooms();
+        System.out.println("Events synchronisés.");
     }
 }
