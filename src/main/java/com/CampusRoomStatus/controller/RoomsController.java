@@ -32,15 +32,64 @@ public class RoomsController {
         this.eventsService = eventsService;
     }
 
-    @Operation(summary = "Récupérer la liste de toutes les salles")
+    @Operation(summary = "Récupérer la liste de toutes les salles avec filtres optionnels")
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAll() {
-        List<RoomDTO> rooms = roomsService.getAll();
+    public ResponseEntity<Map<String, Object>> getAll(
+            @RequestParam(required = false) String building,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Integer capacity_min,
+            @RequestParam(required = false) Integer capacity_max,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String order) {
+
+        List<RoomDTO> roomDTOs = roomsService.getFiltered(building, type, capacity_min, capacity_max, sort, order);
+
+        List<Map<String, Object>> rooms = roomDTOs.stream().map(roomDTO -> {
+            Room room = roomsRepository.findByCode(roomDTO.getCode()).orElse(null);
+
+            Optional<EventDTO> currentEvent = room != null ? eventsService.getCurrentEvent(room) : Optional.empty();
+            Optional<EventDTO> nextEvent = room != null ? eventsService.getNextEvent(room) : Optional.empty();
+
+            String roomStatus = currentEvent.isPresent() ? "occupied" : "available";
+
+            Map<String, Object> roomMap = new LinkedHashMap<>();
+            roomMap.put("code", roomDTO.getCode());
+            roomMap.put("name", roomDTO.getName());
+            if (roomDTO.getBuilding() != null) {
+                Map<String, Object> buildingMap = new LinkedHashMap<>();
+                buildingMap.put("id", roomDTO.getBuilding().getId());
+                buildingMap.put("name", roomDTO.getBuilding().getName());
+                roomMap.put("building", buildingMap);
+            }
+            roomMap.put("floor", roomDTO.getFloor());
+            roomMap.put("capacity", roomDTO.getCapacity());
+            roomMap.put("type", roomDTO.getResourceType());
+            roomMap.put("status", roomStatus);
+            roomMap.put("current_event", currentEvent.orElse(null));
+            roomMap.put("next_event", nextEvent.orElse(null));
+
+            return roomMap;
+        }).toList();
+
+        List<Map<String, Object>> filtered = status != null
+                ? rooms.stream().filter(r -> status.equals(r.get("status"))).toList()
+                : rooms;
+
+        Map<String, Object> filters = new LinkedHashMap<>();
+        if (building != null) filters.put("building", building);
+        if (type != null) filters.put("type", type);
+        if (status != null) filters.put("status", status);
+        if (capacity_min != null) filters.put("capacity_min", capacity_min);
+        if (capacity_max != null) filters.put("capacity_max", capacity_max);
+        if (sort != null) filters.put("sort", sort);
+        if (order != null) filters.put("order", order);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("timestamp", Instant.now().toString());
-        response.put("count", rooms.size());
-        response.put("rooms", rooms);
+        if (!filters.isEmpty()) response.put("filters", filters);
+        response.put("count", filtered.size());
+        response.put("rooms", filtered);
 
         return ResponseEntity.ok(response);
     }

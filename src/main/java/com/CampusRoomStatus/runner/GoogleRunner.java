@@ -40,11 +40,11 @@ public class GoogleRunner implements CommandLineRunner {
         }
 
         System.out.println("----- SYNC GOOGLE → POSTGRES -----");
-        buildingsService.syncFromGoogle();
-        System.out.println("Buildings synchronisés.");
+        // buildingsService.syncFromGoogle();
+        // System.out.println("Buildings synchronisés.");
         roomsService.syncFromGoogle();
         System.out.println("Rooms synchronisées.");
-        eventsService.syncAllRooms();
-        System.out.println("Events synchronisés.");
+        // eventsService.syncAllRooms();
+        // System.out.println("Events synchronisés.");
     }
 }

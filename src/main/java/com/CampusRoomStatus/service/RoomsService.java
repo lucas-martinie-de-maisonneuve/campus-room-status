@@ -91,6 +91,61 @@ public class RoomsService {
         }
     }
 
+    public List<RoomDTO> getFiltered(
+            String building,
+            String type,
+            Integer capacityMin,
+            Integer capacityMax,
+            String sort,
+            String order) {
+
+        List<Room> rooms = roomsRepository.findAll();
+
+        if (building != null)
+            rooms = rooms.stream()
+                    .filter(r -> r.getBuilding() != null &&
+                            building.equalsIgnoreCase(r.getBuilding().getBuildingGoogleId()))
+                    .toList();
+
+        if (type != null)
+            rooms = rooms.stream()
+                    .filter(r -> r.getResourceType() != null &&
+                            type.equalsIgnoreCase(r.getResourceType()))
+                    .toList();
+
+        if (capacityMin != null)
+            rooms = rooms.stream()
+                    .filter(r -> r.getCapacity() != null && r.getCapacity() >= capacityMin)
+                    .toList();
+
+        if (capacityMax != null)
+            rooms = rooms.stream()
+                    .filter(r -> r.getCapacity() != null && r.getCapacity() <= capacityMax)
+                    .toList();
+
+        if (sort != null) {
+            boolean asc = !"desc".equalsIgnoreCase(order);
+            rooms = rooms.stream().sorted((a, b) -> {
+                int cmp = switch (sort.toLowerCase()) {
+                    case "capacity" -> {
+                        int ca = a.getCapacity() != null ? a.getCapacity() : 0;
+                        int cb = b.getCapacity() != null ? b.getCapacity() : 0;
+                        yield Integer.compare(ca, cb);
+                    }
+                    case "name" -> {
+                        String na = a.getName() != null ? a.getName() : "";
+                        String nb = b.getName() != null ? b.getName() : "";
+                        yield na.compareToIgnoreCase(nb);
+                    }
+                    default -> 0;
+                };
+                return asc ? cmp : -cmp;
+            }).toList();
+        }
+
+        return rooms.stream().map(roomMapper::toDTO).toList();
+    }
+
     public List<RoomDTO> getByBuilding(String buildingGoogleId) {
         return roomsRepository.findByBuildingBuildingGoogleId(buildingGoogleId)
                 .stream()
