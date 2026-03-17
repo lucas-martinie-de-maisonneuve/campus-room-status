@@ -52,6 +52,168 @@
           }
         },
         {
+          "name": "GET rooms - filter by building",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?building=La-Plateforme-Hangar",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "building", "value": "La-Plateforme-Hangar" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - filter by status available",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?status=available",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "status", "value": "available" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - filter by status occupied",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?status=occupied",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "status", "value": "occupied" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - filter by building + status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?building=La-Plateforme-Hangar&status=available",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "building", "value": "La-Plateforme-Hangar" },
+                { "key": "status", "value": "available" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - filter by type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?type=Salle",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "type", "value": "Salle" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - filter by capacity_min",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?capacity_min=20",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "capacity_min", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - filter by capacity range",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?capacity_min=10&capacity_max=50",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "capacity_min", "value": "10" },
+                { "key": "capacity_max", "value": "50" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - sort by capacity asc",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?sort=capacity&order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "sort", "value": "capacity" },
+                { "key": "order", "value": "asc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - sort by capacity desc",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?sort=capacity&order=desc",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "sort", "value": "capacity" },
+                { "key": "order", "value": "desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - sort by name asc",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?sort=name&order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "sort", "value": "name" },
+                { "key": "order", "value": "asc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET rooms - combined filters",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms?building=La-Plateforme-Hangar&capacity_min=10&sort=capacity&order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"],
+              "query": [
+                { "key": "building", "value": "La-Plateforme-Hangar" },
+                { "key": "capacity_min", "value": "10" },
+                { "key": "sort", "value": "capacity" },
+                { "key": "order", "value": "asc" }
+              ]
+            }
+          }
+        },
+        {
           "name": "GET room by code",
           "request": {
             "method": "GET",
@@ -120,14 +282,23 @@
               "host": ["{{base_url}}"],
               "path": ["rooms", "Vert-01-RDC-La-Plateforme-Hangar", "schedule"],
               "query": [
-                {
-                  "key": "start",
-                  "value": "2026-03-09"
-                },
-                {
-                  "key": "end",
-                  "value": "2026-03-15"
-                }
+                { "key": "start", "value": "2026-03-09" },
+                { "key": "end", "value": "2026-03-15" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET schedule current week",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/rooms/Vert-01-RDC-La-Plateforme-Hangar/schedule?start=2026-03-16&end=2026-03-20",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "Vert-01-RDC-La-Plateforme-Hangar", "schedule"],
+              "query": [
+                { "key": "start", "value": "2026-03-16" },
+                { "key": "end", "value": "2026-03-20" }
               ]
             }
           }
