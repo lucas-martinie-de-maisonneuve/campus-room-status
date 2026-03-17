@@ -18,4 +18,10 @@ class CampusRoomStatusApplicationTests {
         assertThat(buildingsService).isNotNull();
 	}
 
+	@Test
+	void testCacheEviction() {
+		buildingsService.getAll();
+		buildingsService.syncFromGoogle();
+		buildingsService.getAll();
+	}
 }

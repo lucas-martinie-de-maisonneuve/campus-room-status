@@ -6,6 +6,7 @@ import com.CampusRoomStatus.exception.ErrorCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,6 +28,7 @@ public class GoogleCalendarOAuthClient {
     }
 
     @SuppressWarnings("unchecked")
+    @Cacheable(value = "events", key = "#calendarId + '-' + #start.toEpochSecond() + '-' + #end.toEpochSecond()")
     public Map<String, Object> listEvents(String calendarId, ZonedDateTime start, ZonedDateTime end) {
         String token = tokenService.getAccessToken();
 

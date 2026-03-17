@@ -6,6 +6,7 @@ import com.CampusRoomStatus.exception.ErrorCode;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Map;
 
@@ -30,6 +31,7 @@ public class GoogleDirectoryOAuthClient {
      * Le token d'accès est obtenu via le GoogleOAuthTokenService, qui gère le
      * rafraîchissement du token si nécessaire.
      */
+    @Cacheable(value = "buildings", key = "'allBuildings'")
     @SuppressWarnings("unchecked")
     public Map<String, Object> listBuildings() {
         String token = tokenService.getAccessToken();
@@ -51,6 +53,7 @@ public class GoogleDirectoryOAuthClient {
      * rafraîchissement du token si nécessaire.
      */
     @SuppressWarnings("unchecked")
+    @Cacheable(value = "rooms", key = "'allRooms'")
     public Map<String, Object> listRooms() {
         String token = tokenService.getAccessToken();
 
