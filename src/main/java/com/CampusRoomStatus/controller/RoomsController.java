@@ -110,36 +110,7 @@ public class RoomsController {
     @Operation(summary = "Récupérer une salle par code avec status et events")
     @GetMapping("/{code}")
     public ResponseEntity<Map<String, Object>> getByCode(@PathVariable String code) {
-        return roomsService.getByCode(code)
-                .map(roomDTO -> {
-                    Room room = roomsRepository.findByCode(code).get();
-
-                    Optional<EventDTO> currentEvent = eventsService.getCurrentEvent(room);
-                    Optional<EventDTO> nextEvent = eventsService.getNextEvent(room);
-
-                    ZonedDateTime now = ZonedDateTime.now();
-                    ZonedDateTime startOfDay = now.toLocalDate().atStartOfDay(now.getZone());
-                    ZonedDateTime endOfDay = startOfDay.plusDays(1);
-                    List<EventDTO> scheduleToday = eventsService.getEventsForRoom(code, startOfDay, endOfDay);
-
-                    String status = currentEvent.isPresent() ? "occupied" : "available";
-
-                    Map<String, Object> roomMap = new LinkedHashMap<>();
-                    roomMap.put("code", roomDTO.getCode());
-                    roomMap.put("name", roomDTO.getName());
-                    roomMap.put("capacity", roomDTO.getCapacity());
-                    roomMap.put("type", roomDTO.getResourceType());
-                    roomMap.put("status", status);
-                    roomMap.put("current_event", currentEvent.orElse(null));
-                    roomMap.put("next_event", nextEvent.orElse(null));
-                    roomMap.put("schedule_today", scheduleToday);
-
-                    Map<String, Object> response = new LinkedHashMap<>();
-                    response.put("timestamp", Instant.now().toString());
-                    response.put("room", roomMap);
-
-                    return ResponseEntity.ok(response);
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Map<String, Object> roomData = roomsService.getRoomWithStatusAndEvents(code);
+        return ResponseEntity.ok(roomData);
     }
 }

@@ -10,6 +10,8 @@ public enum ErrorCode {
     RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Rate limit atteint"),
     GOOGLE_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Service Google indisponible"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur serveur"),
+    DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur de base de données"),
+    DATABASE_ERROR_FORBIDDEN(HttpStatus.FORBIDDEN, "Accès à la base de données interdit"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Accès interdit");
 
     private final HttpStatus httpStatus;
