@@ -53,6 +53,7 @@ public class GoogleCalendarOAuthClient {
         }
     }
 
+    @Cacheable(value = "events", key = "#calendarId + '-thisWeek'")
     public Map<String, Object> listEventsThisWeek(String calendarId) {
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))

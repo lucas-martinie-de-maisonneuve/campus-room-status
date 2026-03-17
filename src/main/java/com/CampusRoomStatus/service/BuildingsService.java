@@ -7,6 +7,7 @@ import com.CampusRoomStatus.mapper.BuildingMapper;
 import com.CampusRoomStatus.repository.BuildingsRepository;
 import com.CampusRoomStatus.exception.ApiException;
 import com.CampusRoomStatus.exception.ErrorCode;
+import org.springframework.cache.annotation.CacheEvict;
 
 import org.springframework.stereotype.Service;
 
@@ -86,6 +87,7 @@ public class BuildingsService {
      * les enregistrements correspondants dans la base de données PostgreSQL.
      */
     @SuppressWarnings("unchecked")
+    @CacheEvict(value = "dbBuildings", allEntries = true)
     public void syncFromGoogle() {
 
          Map<String, Object> response;
