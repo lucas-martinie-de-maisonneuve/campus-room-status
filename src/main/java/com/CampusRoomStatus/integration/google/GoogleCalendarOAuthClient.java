@@ -1,6 +1,8 @@
 package com.CampusRoomStatus.integration.google;
 
-import com.CampusRoomStatus.exception.GoogleIntegrationException;
+import com.CampusRoomStatus.exception.ApiException;
+import com.CampusRoomStatus.exception.ErrorCode;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -45,7 +47,7 @@ public class GoogleCalendarOAuthClient {
                     .retrieve()
                     .body(Map.class);
         } catch (Exception e) {
-            throw new GoogleIntegrationException("Impossible de récupérer les events : " + calendarId, e);
+            throw new ApiException(ErrorCode.EVENT_NOT_FOUND,"Impossible de récupérer les events : " + calendarId);
         }
     }
 

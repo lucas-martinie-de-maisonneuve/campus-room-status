@@ -1,7 +1,9 @@
 package com.CampusRoomStatus.integration.google;
 
 import com.CampusRoomStatus.config.AppProperties;
-import com.CampusRoomStatus.exception.GoogleIntegrationException;
+import com.CampusRoomStatus.exception.ApiException;
+import com.CampusRoomStatus.exception.ErrorCode;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -38,7 +40,7 @@ public class GoogleDirectoryOAuthClient {
                     .retrieve()
                     .body(Map.class);
         } catch (Exception e) {
-            throw new GoogleIntegrationException("Impossible de récupérer les bâtiments", e);
+            throw new ApiException(ErrorCode.GOOGLE_SERVICE_UNAVAILABLE,"Impossible de récupérer les bâtiments");
         }
     }
 
@@ -59,7 +61,7 @@ public class GoogleDirectoryOAuthClient {
                     .retrieve()
                     .body(Map.class);
         } catch (Exception e) {
-            throw new GoogleIntegrationException("Impossible de récupérer les salles", e);
+            throw new ApiException(ErrorCode.GOOGLE_SERVICE_UNAVAILABLE,"Impossible de récupérer les salles");
         }
     }
 }

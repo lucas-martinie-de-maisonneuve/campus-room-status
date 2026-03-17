@@ -2,9 +2,9 @@ package com.CampusRoomStatus.controller;
 
 import com.CampusRoomStatus.integration.google.GoogleOAuthTokenService;
 import io.swagger.v3.oas.annotations.Hidden;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
-import java.io.IOException;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
@@ -29,15 +29,12 @@ public class AuthController {
      * message explicatif.
      */
     @GetMapping("/get-token")
-    public void getToken(HttpServletResponse response) throws IOException {
-        if (tokenService.hasRefreshToken()) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write(
-                    "Refresh token deja configure. Si vous voulez en configurer un nouveau, supprimez d'abord la variable GOOGLE_REFRESH_TOKEN de votre .env");
-            response.getWriter().flush();
-            return;
-        }
-        response.sendRedirect("/api/v1/oauth2/authorization/google");
+    public ResponseEntity<Void> getToken() {
+        tokenService.validateNoRefreshTokenConfigured();
+
+        return ResponseEntity.status(302)
+                .header("Location", "/api/v1/oauth2/authorization/google")
+                .build();
     }
 
     /**

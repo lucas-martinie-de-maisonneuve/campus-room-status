@@ -1,7 +1,9 @@
 package com.CampusRoomStatus.integration.google;
 
 import com.CampusRoomStatus.config.AppProperties;
-import com.CampusRoomStatus.exception.GoogleIntegrationException;
+import com.CampusRoomStatus.exception.ApiException;
+import com.CampusRoomStatus.exception.ErrorCode;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -17,6 +19,15 @@ public class GoogleOAuthTokenService {
     public GoogleOAuthTokenService(AppProperties properties) {
         this.properties = properties;
         this.restClient = RestClient.create();
+    }
+
+    public void validateNoRefreshTokenConfigured() {
+        if (hasRefreshToken()) {
+            throw new ApiException(
+                    ErrorCode.FORBIDDEN,
+                    "Refresh token déjà configuré. Supprimez GOOGLE_REFRESH_TOKEN pour en configurer un nouveau."
+            );
+        }
     }
 
     /**
@@ -39,8 +50,7 @@ public class GoogleOAuthTokenService {
      */
     public String getAccessToken() {
         if (!hasRefreshToken()) {
-            throw new GoogleIntegrationException(
-                    "Aucun refresh token configuré. Connectez-vous sur http://localhost:8080/api/v1/get-token", null);
+            throw new ApiException(ErrorCode.INVALID_REQUEST, "Aucun refresh token configuré. Connectez-vous sur http://localhost:8080/api/v1/get-token");
         }
 
         var body = new LinkedMultiValueMap<String, String>();
@@ -58,7 +68,7 @@ public class GoogleOAuthTokenService {
                     .body(Map.class);
             return (String) response.get("access_token");
         } catch (Exception e) {
-            throw new GoogleIntegrationException("Impossible de rafraîchir le token OAuth : " + e.getMessage(), e);
+            throw new ApiException(ErrorCode.GOOGLE_SERVICE_UNAVAILABLE,"Impossible de rafraîchir le token OAuth");
         }
     }
 }

@@ -163,7 +163,6 @@ public class EventsService {
             if (end != null && end.get("dateTime") != null) {
                 event.setEndTime(ZonedDateTime.parse((String) end.get("dateTime")));
             }
-
             eventsRepository.save(event);
         }
     }

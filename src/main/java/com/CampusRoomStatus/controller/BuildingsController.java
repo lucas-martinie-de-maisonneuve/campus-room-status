@@ -58,8 +58,7 @@ public class BuildingsController {
     @Operation(summary = "Récupérer les détails d'un bâtiment par son buildingId")
     @GetMapping("/{buildingId}")
     public ResponseEntity<BuildingDTO> getBuildingById(@PathVariable String buildingId) {
-        return buildingsService.getByGoogleId(buildingId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        BuildingDTO building = buildingsService.getByGoogleId(buildingId);
+        return ResponseEntity.ok(building);
     }
 }

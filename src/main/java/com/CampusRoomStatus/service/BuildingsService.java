@@ -5,7 +5,11 @@ import com.CampusRoomStatus.entity.Building;
 import com.CampusRoomStatus.integration.google.GoogleDirectoryOAuthClient;
 import com.CampusRoomStatus.mapper.BuildingMapper;
 import com.CampusRoomStatus.repository.BuildingsRepository;
+import com.CampusRoomStatus.exception.ApiException;
+import com.CampusRoomStatus.exception.ErrorCode;
+
 import org.springframework.stereotype.Service;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +52,17 @@ public class BuildingsService {
      * @return
      */
     public Optional<BuildingDTO> getById(Integer id) {
+
+        if (id == null) {
+            throw new ApiException(ErrorCode.INVALID_REQUEST, "L'id du bâtiment est requis");
+        };
+
+        if (id <= 0) {
+            throw new ApiException(ErrorCode.INVALID_REQUEST, "L'id du bâtiment doit être un entier positif");
+        };
+
         return buildingsRepository.findById(id)
-                .map(buildingMapper::toDTO);
+            .map(buildingMapper::toDTO);
     }
 
     /**
@@ -58,9 +71,13 @@ public class BuildingsService {
      * @param buildingGoogleId
      * @return
      */
-    public Optional<BuildingDTO> getByGoogleId(String buildingGoogleId) {
+    public BuildingDTO getByGoogleId(String buildingGoogleId) {
         return buildingsRepository.findByBuildingGoogleId(buildingGoogleId)
-                .map(buildingMapper::toDTO);
+                .map(buildingMapper::toDTO)
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.ROOM_NOT_FOUND,
+                        "Bâtiment introuvable : " + buildingGoogleId
+                ));
     }
 
     /**
@@ -71,13 +88,33 @@ public class BuildingsService {
      */
     @SuppressWarnings("unchecked")
     public void syncFromGoogle() {
-        Map<String, Object> response = googleDirectoryOAuthClient.listBuildings();
 
-        if (response == null || !response.containsKey("buildings")) {
-            return;
+         Map<String, Object> response;
+        try {
+            response = googleDirectoryOAuthClient.listBuildings();
+        } catch (Exception e) {
+            throw new ApiException(
+                ErrorCode.GOOGLE_SERVICE_UNAVAILABLE,
+                "Impossible de synchroniser les bâtiments avec Google"
+            );
         }
 
-        List<Map<String, Object>> googleBuildings = (List<Map<String, Object>>) response.get("buildings");
+        if (response == null || !response.containsKey("buildings")) {
+            throw new ApiException(
+                ErrorCode.GOOGLE_SERVICE_UNAVAILABLE,
+                "Réponse Google invalide : champ 'buildings' manquant"
+            );
+        }
+
+       List<Map<String, Object>> googleBuildings;
+        try {
+            googleBuildings = (List<Map<String, Object>>) response.get("buildings");
+        } catch (ClassCastException e) {
+            throw new ApiException(
+                ErrorCode.GOOGLE_SERVICE_UNAVAILABLE,
+                "Réponse Google invalide : format inattendu pour 'buildings'"
+            );
+        }
 
         for (Map<String, Object> googleBuilding : googleBuildings) {
             String googleId = (String) googleBuilding.get("buildingId");
